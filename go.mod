@@ -1,4 +1,4 @@
-module www.github.com/dmfed/termtools
+module github.com/dmfed/termtools
 
 go 1.15
 

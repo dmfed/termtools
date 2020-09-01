@@ -39,13 +39,16 @@ const (
 	BBrightMagenta = "\u001b[45;1m"
 	BBrightCyan    = "\u001b[46;1m"
 	BBrightWhite   = "\u001b[47;1m"
+
 	//Styles (can be used separately ot together)
 	Bold      = "\u001b[1m"
 	Underline = "\u001b[4m"
 	Reversed  = "\u001b[7m"
 	//Reset escape sequence
+
 	ColorReset = "\u001b[0m"
 	//Save cursor position
+
 	SaveCursor = "\033[s"
 	// restore cursor position
 	RestoreCursor = "\033[u"

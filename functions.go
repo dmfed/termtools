@@ -87,13 +87,19 @@ func BPaintByID(colorcode int, input string) string {
 }
 
 //MoveCursor moves cursot to the cpecified position on terminal screen
+//Will do nothing if x or y are out of bounds or we could not get size of
+//terminal
 func MoveCursor(x, y int) {
-	fmt.Printf("\033[%v;%vH", x, y)
+	maxx, maxy := GetCurrTermSize()
+	if x <= maxx && y <= maxy {
+		fmt.Printf("\033[%v;%vH", x, y)
+	}
 }
 
 //PrintAtPositionAndReturn moves cursor in current terminal to
-//the specified position and prints the string then returns to
+//the specified position, prints the string then returns to
 //the original position (when the function was called)
+//Will print at current cursor position if terminal size is unavailable
 func PrintAtPositionAndReturn(y, x int, s string) {
 	fmt.Print(SaveCursor)
 	MoveCursor(y, x)
@@ -101,7 +107,37 @@ func PrintAtPositionAndReturn(y, x int, s string) {
 	fmt.Print(RestoreCursor)
 }
 
-func GetCurrTermSize() (x, y int) {
-	x, y, _ = terminal.GetSize(0)
-	return x, y
+//GetCurrTermSize rturns Current terminal size (in characters)
+func GetCurrTermSize() (int, int) {
+	x, y, err := terminal.GetSize(0)
+	if err == nil {
+		return x, y
+	}
+	return 0, 0
+}
+
+//ClearScreen does exactly what its name says
+func ClearScreen() {
+	fmt.Print("\u001b[2J")
+}
+
+func ClearScreenUp() {
+	fmt.Print("\u001b[1J")
+}
+
+func ClearScreenDown() {
+	fmt.Print("\u001b[0J")
+}
+
+//ClearLine deletes the whole line of text
+func ClearLine() {
+	fmt.Print("\u001b[2K")
+}
+
+func ClearLineLeft() {
+	fmt.Print("\u001b[1K")
+}
+
+func ClearLineRight() {
+	fmt.Print("\u001b[0K")
 }
