@@ -92,7 +92,7 @@ func BPaintByID(colorcode int, input string) string {
 func MoveCursor(x, y int) {
 	maxx, maxy := GetCurrTermSize()
 	if x <= maxx && y <= maxy {
-		fmt.Printf("\033[%v;%vH", x, y)
+		fmt.Printf("\033[%v;%vH", y, x)
 	}
 }
 
@@ -100,9 +100,9 @@ func MoveCursor(x, y int) {
 //the specified position, prints the string then returns to
 //the original position (when the function was called)
 //Will print at current cursor position if terminal size is unavailable
-func PrintAtPositionAndReturn(y, x int, s string) {
+func PrintAtPositionAndReturn(x, y int, s string) {
 	fmt.Print(SaveCursor)
-	MoveCursor(y, x)
+	MoveCursor(x, y)
 	fmt.Print(s)
 	fmt.Print(RestoreCursor)
 }
