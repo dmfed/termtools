@@ -101,11 +101,6 @@ func (p *Printer) Reset() {
 }
 
 /*
-
-func Printf(format string, a ...interface{}) (n int, err error) {
-
-}
-
 func Sprint(a ...interface{}) string {
 
 }
