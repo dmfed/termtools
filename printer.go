@@ -43,6 +43,11 @@ func (p *Printer) Print(a ...interface{}) (n int, err error) {
 	return fmt.Print(out)
 }
 
+func (p *Printer) Printf(format string, a ...interface{}) (n int, err error) {
+	out := p.processString(format)
+	return fmt.Printf(out, a...)
+}
+
 func (p *Printer) SetColor(colorname string) error {
 	code, err := getColorByName(colorname)
 	if err == nil {
