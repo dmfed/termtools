@@ -26,7 +26,7 @@ func NewColorPrinter(color string) (*Printer, error) {
 }
 
 // NewPrinter returns instance of Printer with parameters set as requested
-func NewPrinter(color, background string, bold, underline, reversed bool) (*Printer, error) {
+func NewPrinter(color string, bold, underline, reversed bool) (*Printer, error) {
 	p, err := NewColorPrinter(color)
 	p.bold = bold
 	p.underline = underline
