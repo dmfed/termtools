@@ -34,6 +34,23 @@ func PrintPalette(width int) {
 	}
 }
 
+func Test_basicColors(t *testing.T) {
+	var p Printer
+	p.Println("Testing basic colors output")
+	width := 8
+	for color := range colorMap {
+		if width == 0 {
+			p.Println()
+			width = 8
+		}
+		p.SetColor(color)
+		p.Print(color)
+		p.Reset()
+		width--
+	}
+	p.Print("\n\n")
+}
+
 func Test_PrintPalette(t *testing.T) {
 	fmt.Println("These are color codes to set up colors by id...")
 	PrintPalette(20)
