@@ -2,10 +2,10 @@ package termtools
 
 import (
 	"fmt"
+	"io"
 )
 
-// Printer implements most methods from fmt like Print, Println, Sprint
-// adding colors and styles to input values
+// Printer implements most methods from fmt like Print, Println, Sprint adding colors and styles to input values
 type Printer struct {
 	color      string
 	background string
@@ -14,12 +14,10 @@ type Printer struct {
 	reversed   bool
 }
 
-// NewColorPrinter takes color name (string) and returns Printer
-// with font color set to the requirement. If supplied color name
-// is invalid, the function will return an error.
+// NewColorPrinter takes color name (string) and returns Printer with font color set to the requirement. If supplied color name is invalid, the function will return an error.
 func NewColorPrinter(color string) (*Printer, error) {
 	var p Printer
-	code, err := GetColorByName(color)
+	code, err := getColorByName(color)
 	p.color = code
 	return &p, err
 }
@@ -33,21 +31,67 @@ func NewPrinter(color, background string, bold, underline, reversed bool) (*Prin
 	return p, err
 }
 
-func (p *Printer) Println(a ...interface{}) (n int, err error) {
-	out := p.processString(a...)
-	return fmt.Println(out)
+// Errorf formats according to a format specifier and returns the string as a value that satisfies error.
+func (p *Printer) Errorf(format string, a ...interface{}) error {
+	out := p.processString(format)
+	return fmt.Errorf(out, a...)
 }
 
+// Fprint formats using the default formats for its operands and writes to w. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
+func (p *Printer) Fprint(w io.Writer, a ...interface{}) (n int, err error) {
+	out := p.processString(a...)
+	return fmt.Fprint(w, out)
+}
+
+// Fprintf formats according to a format specifier and writes to w. It returns the number of bytes written and any write error encountered.
+func (p *Printer) Fprintf(w io.Writer, format string, a ...interface{}) (n int, err error) {
+	out := p.processString(format)
+	return fmt.Fprintf(w, out, a...)
+}
+
+// Fprintln formats using the default formats for its operands and writes to w. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
+func (p *Printer) Fprintln(w io.Writer, a ...interface{}) (n int, err error) {
+	out := p.processString(a...)
+	return fmt.Fprintln(w, out)
+}
+
+// Print formats using the default formats for its operands and writes to standard output. Spaces are added between operands when neither is a string. It returns the number of bytes written and any write error encountered.
 func (p *Printer) Print(a ...interface{}) (n int, err error) {
 	out := p.processString(a...)
 	return fmt.Print(out)
 }
 
+// Printf formats according to a format specifier and writes to standard output. It returns the number of bytes written and any write error encountered.
 func (p *Printer) Printf(format string, a ...interface{}) (n int, err error) {
 	out := p.processString(format)
 	return fmt.Printf(out, a...)
 }
 
+// Println formats using the default formats for its operands and writes to standard output. Spaces are always added between operands and a newline is appended. It returns the number of bytes written and any write error encountered.
+func (p *Printer) Println(a ...interface{}) (n int, err error) {
+	out := p.processString(a...)
+	return fmt.Println(out)
+}
+
+// Sprint formats using the default formats for its operands and returns the resulting string. Spaces are added between operands when neither is a string.
+func (p *Printer) Sprint(a ...interface{}) string {
+	out := p.processString(a...)
+	return fmt.Sprint(out)
+}
+
+// Sprintf formats according to a format specifier and returns the resulting string.
+func (p *Printer) Sprintf(format string, a ...interface{}) string {
+	out := p.processString(format)
+	return fmt.Sprintf(out, a...)
+}
+
+// Sprintln formats using the default formats for its operands and returns the resulting string. Spaces are always added between operands and a newline is appended.
+func (p *Printer) Sprintln(a ...interface{}) string {
+	out := p.processString(a...)
+	return fmt.Sprintln(out)
+}
+
+// SetColor sets color of printer defined by colorname input string. If colorname is not known to the library or is empty the method will return an error.
 func (p *Printer) SetColor(colorname string) error {
 	code, err := getColorByName(colorname)
 	if err == nil {
@@ -56,6 +100,7 @@ func (p *Printer) SetColor(colorname string) error {
 	return err
 }
 
+// SetColorID sets color of printer defined by id in range [0;255]. If id is out of range the method will return an error.
 func (p *Printer) SetColorID(id int) error {
 	code, err := getColorByID(id)
 	if err == nil {
@@ -64,6 +109,7 @@ func (p *Printer) SetColorID(id int) error {
 	return err
 }
 
+// SetBackground sets backgtound color of printer defined by colorname input string. If colorname is not known to the library or is empty the method will return an error.
 func (p *Printer) SetBackground(colorname string) error {
 	code, err := getBackgroundByName(colorname)
 	if err == nil {
@@ -72,6 +118,7 @@ func (p *Printer) SetBackground(colorname string) error {
 	return err
 }
 
+// SetBackgroundID sets color of printer defined by id in range [0;255]. If id is out of range the method will return an error.
 func (p *Printer) SetBackgroundID(id int) error {
 	code, err := getBackgroundByID(id)
 	if err == nil {
@@ -80,18 +127,22 @@ func (p *Printer) SetBackgroundID(id int) error {
 	return err
 }
 
+// ToggleBold toggles bold mode
 func (p *Printer) ToggleBold() {
 	p.bold = !p.bold
 }
 
+// ToggleUnderline toggles underline mode
 func (p *Printer) ToggleUnderline() {
 	p.underline = !p.underline
 }
 
+// ToggleReversed toggles reverse mode
 func (p *Printer) ToggleReversed() {
 	p.reversed = !p.reversed
 }
 
+// Reset resets printer state to initial state (no color, no background, bold, underline and reversed modes turned off).
 func (p *Printer) Reset() {
 	p.color = ""
 	p.background = ""
@@ -99,39 +150,6 @@ func (p *Printer) Reset() {
 	p.underline = false
 	p.reversed = false
 }
-
-/*
-func Sprint(a ...interface{}) string {
-
-}
-
-func Sprintf(format string, a ...interface{}) string {
-
-}
-
-func Sprintln(a ...interface{}) string {
-
-}
-*/
-
-/*
-func Errorf(format string, a ...interface{}) error                            {}
-func Fprint(w io.Writer, a ...interface{}) (n int, err error)                 {}
-func Fprintf(w io.Writer, format string, a ...interface{}) (n int, err error) {}
-func Fprintln(w io.Writer, a ...interface{}) (n int, err error)               {}
-func Fscan(r io.Reader, a ...interface{}) (n int, err error)                  {}
-func Fscanf(r io.Reader, format string, a ...interface{}) (n int, err error)  {}
-func Fscanln(r io.Reader, a ...interface{}) (n int, err error)                {}
-                               {}
-
-func Scan(a ...interface{}) (n int, err error)                                {}
-func Scanf(format string, a ...interface{}) (n int, err error)                {}
-func Scanln(a ...interface{}) (n int, err error)                              {}
-                             {}
-func Sscan(str string, a ...interface{}) (n int, err error)                   {}
-func Sscanf(str string, format string, a ...interface{}) (n int, err error)   {}
-func Sscanln(str string, a ...interface{}) (n int, err error)                 {}
-*/
 
 func (p *Printer) processString(a ...interface{}) string {
 	out := p.color + p.background

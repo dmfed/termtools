@@ -68,7 +68,7 @@ const (
 	ClearLLeft         = "\u001b[1K"
 	ClearLRight        = "\u001b[0K"
 
-	// Template code to move cursor. Needs to values x and y.
+	// Format string to move cursor. Needs two values: y and x (in this order).
 	MoveTemplate = "\033[%v;%vH"
 )
 

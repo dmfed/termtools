@@ -55,9 +55,25 @@ func getBackgroundByID(id int) (string, error) {
 	return "", ErrUnknownColor
 }
 
-func printAtPositionAndReturn(x, y int, s string) {
+func colorSprint(colorname string, a ...interface{}) string {
+	code, err := getColorByName(colorname)
+	if err != nil {
+		return fmt.Sprint(a...)
+	}
+	return code + fmt.Sprint(a...) + Reset
+}
+
+func colorIDSprint(id int, a ...interface{}) string {
+	code, err := getColorByID(id)
+	if err != nil {
+		return fmt.Sprint(a...)
+	}
+	return code + fmt.Sprint(a...) + Reset
+}
+
+func printAtPositionAndReturn(x, y int, a ...interface{}) {
 	fmt.Print(SaveCursor)
-	MoveCursor(x, y)
-	fmt.Print(s)
+	moveCursor(x, y)
+	fmt.Print(a...)
 	fmt.Print(RestoreCursor)
 }
