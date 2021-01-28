@@ -23,7 +23,7 @@ Color numeric ids (color codes) are as follows:
 
 ![image of palette with colors numbered 0-255](https://github.com/dmfed/termtools/blob/master/palette.png)
 
-You can see the above palette in your terminal. Just cd into the repo and issu issue **go test**. 
+You can see the above palette in your terminal. Just cd into the repo and issue **go test**. 
 
 Supported color names are:
 
