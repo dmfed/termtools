@@ -3,6 +3,8 @@
 **termtools** is basically a collection utilities to style terminal
 output and also some utility functions to move cursor around, clear screen, delete lines of text etc.
 
+**[See full package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools@v0.6.0)**
+
 **go get -u github.com/dmfed/termtools** to use in your code.
 
 First of all you can use can use ANSI escapes directly: attach prefix of color code and suffix of color reset to your string like this:
@@ -34,7 +36,7 @@ Supported color names are:
 Printer type implements most print methods in the same way as fmt package from standard library. 
 You can call Println, Print, Sprint, Sprintf, Errorf etc. Methods implemented by Printer have same signatures as those if fmt module. In fact termtools just wraps around fmt methods only adding required ANSI escapes to the original values passed and does nothing more than that. 
 
-For a detailed listing of functions and methods [see package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools@v0.6.0)
+For a detailed listing of functions and methods **[see package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools@v0.6.0)**
 
 A demo program is included in **sample** directory. Here's the listing:
 
