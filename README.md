@@ -19,7 +19,7 @@ printer.Println("This will output in orange")
 
 Two methods to set color are by name of color and by color numeric id ranging from 0 to 255 inclusive. 
 
-Color codes are as follows:
+Color numeric ids (color codes) are as follows:
 
 ![image of palette with colors numbered 0-255](https://github.com/dmfed/termtools/blob/master/palette.png)
 
