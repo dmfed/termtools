@@ -1,8 +1,8 @@
 package termtools
 
 const (
-	//The following constants hold ANSI escape sequences with font and background color codes
-	//and basic style codes
+	// The following constants hold ANSI escape sequences with font and background color codes
+	// and basic style escapes
 
 	//Basic 8 colors
 	Black   string = "\u001b[30m"
@@ -44,7 +44,7 @@ const (
 	BBrightCyan           = "\u001b[46;1m"
 	BBrightWhite          = "\u001b[47;1m"
 
-	//Styles (can be used separately ot together with color codes)
+	//Styles (can be used separately or together with color and background codes)
 	Bold      string = "\u001b[1m"
 	Underline        = "\u001b[4m"
 	Reversed         = "\u001b[7m"

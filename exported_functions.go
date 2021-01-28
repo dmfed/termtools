@@ -1,16 +1,18 @@
-// Package termtools
+// Package termtools provides basic functionality to style console output in Linux.
+//
+// Copyright 2021 Dmitry Fedotov
 package termtools
 
 import (
 	"fmt"
 )
 
-// GetColorCodeByID accepts int (from 0 to 255) and returns ANSI escape sequence for requested color. If id is out of range, returns an empty string.
+// GetColorCodeByID accepts int (from 0 to 255 inclusive) and returns ANSI escape sequence for requested color. If id is out of range, returns an empty string.
 func GetColorCodeByID(id int) (string, error) {
 	return getColorByID(id)
 }
 
-// GetBackgroundCodeByID accepts int (from 0 to 255) and returns ANSI escape sequence for requested background color. If id is out of range, returns an empty string.
+// GetBackgroundCodeByID accepts int (from 0 to 255 inclusive) and returns ANSI escape sequence for requested background color. If id is out of range, returns an empty string.
 func GetBackgroundCodeByID(id int) (string, error) {
 	return getBackgroundByID(id)
 }
