@@ -1,57 +1,50 @@
 package termtools
 
 import (
-	"fmt"
 	"testing"
 )
 
 func PrintPalette(width int) {
-	p := Printer{}
-	colorid := 0
-	for colorid < 256 {
-		for x := 0; x < width; x++ {
-			p.Printf("%3d ", colorid)
-			colorid++
-			if colorid == 256 {
-				colorid += width - x - 1
-				break
-			}
-		}
-		colorid -= width
-		p.Println()
-		for x := 0; x < width; x++ {
-			p.SetBackgroundID(colorid)
-			p.Printf("   ")
-			p.Reset()
-			p.Print(" ")
-			colorid++
-			if colorid == 256 {
-				p.Reset()
-				break
-			}
-		}
-		p.Println()
-	}
+
 }
 
 func Test_basicColors(t *testing.T) {
 	var p Printer
 	p.Println("Testing basic colors output")
-	width := 8
+	width := 4
 	for color := range colorMap {
 		if width == 0 {
 			p.Println()
-			width = 8
+			width = 4
 		}
 		p.SetColor(color)
-		p.Print(color)
+		p.Printf("[%v] ", color)
 		p.Reset()
 		width--
 	}
 	p.Print("\n\n")
 }
 
-func Test_PrintPalette(t *testing.T) {
-	fmt.Println("These are color codes to set up colors by id...")
-	PrintPalette(20)
+func Test_ColorOutput(t *testing.T) {
+	p := Printer{}
+	p.Println("These are color codes to set up colors by id...")
+	start, width := 0, 20
+	for start < 256 {
+		end := start + width
+		if end > 256 {
+			end = 256
+		}
+		for id := start; id < end; id++ {
+			p.Printf("%3d ", id)
+		}
+		p.Println()
+		for id := start; id < end; id++ {
+			p.SetBackgroundID(id)
+			p.Printf("   ")
+			p.Reset()
+			p.Print(" ")
+		}
+		start = end
+		p.Println()
+	}
 }

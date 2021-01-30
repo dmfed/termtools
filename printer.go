@@ -8,7 +8,6 @@ import (
 // Printer holds color and style settings and implements most methods as in fmt modure like Print, Println, Sprint etc.
 // adding color and styles to the input values.
 type Printer struct {
-	// contains unexported fields
 	color      string
 	background string
 	bold       bool
@@ -26,12 +25,23 @@ func NewColorPrinter(color string) (*Printer, error) {
 }
 
 // NewPrinter returns instance of Printer with parameters set as requested
-func NewPrinter(color string, bold, underline, reversed bool) (*Printer, error) {
-	p, err := NewColorPrinter(color)
+func NewPrinter(color string, background string, bold, underline, reversed bool) (*Printer, error) {
+	var p Printer
+	var result error
+	if code, err := getColorByName(color); err == nil {
+		p.color = code
+	} else {
+		result = err
+	}
+	if code, err := getBackgroundByName(background); err == nil {
+		p.background = code
+	} else {
+		result = err
+	}
 	p.bold = bold
 	p.underline = underline
 	p.reversed = reversed
-	return p, err
+	return &p, result
 }
 
 // Errorf formats according to a format specifier and returns the string as a value that satisfies error.
@@ -114,8 +124,8 @@ func (p *Printer) SetColor(colorname string) error {
 
 // SetColorID sets color of printer defined by id in range [0;255].
 // If id is out of range the method will return an error.
-func (p *Printer) SetColorID(id int) error {
-	code, err := getColorByID(id)
+func (p *Printer) SetColorID(colorID int) error {
+	code, err := getColorByID(colorID)
 	if err == nil {
 		p.color = code
 	}
@@ -134,8 +144,8 @@ func (p *Printer) SetBackground(colorname string) error {
 
 // SetBackgroundID sets color of printer defined by id in range [0;255].
 // If id is out of range the method will return an error.
-func (p *Printer) SetBackgroundID(id int) error {
-	code, err := getBackgroundByID(id)
+func (p *Printer) SetBackgroundID(colorID int) error {
+	code, err := getBackgroundByID(colorID)
 	if err == nil {
 		p.background = code
 	}
@@ -166,6 +176,59 @@ func (p *Printer) Reset() {
 	p.reversed = false
 }
 
+// PrintAtPosition moves cursor to specified column and row and issues Print
+// It does not return to the initial position. See also PrintAtPositionAndReturn method.
+func (p *Printer) PrintAtPosition(column, row int, a ...interface{}) (n int, err error) {
+	out := p.processString(a...)
+	moveCursorTo(column, row)
+	return fmt.Print(out)
+}
+
+// PrintAtPositionAndReturn moves cursor to specified column and row and issues Print
+// then moves cursor to initial position when method was called.
+func (p *Printer) PrintAtPositionAndReturn(x, y int, a ...interface{}) (n int, err error) {
+	out := p.processString(a...)
+	saveCursorPosition()
+	moveCursorTo(x, y)
+	defer restoreCursorPosition()
+	return fmt.Print(out)
+}
+
+// MoveTo places cursor at the specafied column and row
+func (p *Printer) MoveTo(column, row int) {
+	moveCursorTo(column, row)
+}
+
+// MoveUp moves cursor up specified number of rows
+func (p *Printer) MoveUp(rows int) {
+	moveCursorUp(rows)
+}
+
+// MoveDown moves cursor down specified number of rows
+func (p *Printer) MoveDown(rows int) {
+	moveCursorDown(rows)
+}
+
+// MoveLeft moves cursor left specified number of columns
+func (p *Printer) MoveLeft(columns int) {
+	moveCursorLeft(columns)
+}
+
+// MoveRight moves cursor right specified number of columns
+func (p *Printer) MoveRight(columns int) {
+	moveCursorRight(columns)
+}
+
+// MoveToNextRow moves cursor to the next row
+func (p *Printer) MoveToNextRow() {
+	moveCursorToNextRow()
+}
+
+// MoveToRow moves cursor to the specified row
+func (p *Printer) MoveToRow(row int) {
+	moveCursorToRow(row)
+}
+
 func (p *Printer) processString(a ...interface{}) string {
 	out := p.color + p.background
 	if p.bold {
@@ -176,6 +239,9 @@ func (p *Printer) processString(a ...interface{}) string {
 	}
 	if p.reversed {
 		out += Reversed
+	}
+	if out == "" {
+		return fmt.Sprint(a...)
 	}
 	out += fmt.Sprint(a...)
 	out += Reset

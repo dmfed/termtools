@@ -1,31 +1,61 @@
 package termtools
 
 import (
-	"errors"
 	"fmt"
 
 	"golang.org/x/sys/unix"
 )
 
-var (
-	// ErrUnknownColor is returned whenever wrong color name or numeric id is requested
-	ErrUnknownColor = errors.New("error: unknown color name or id out of range [0;255]")
-)
+// Cursor position manipulations
 
-func getTermSize() (int, int) {
+func getTermSize() (int, int, error) {
 	ws, err := unix.IoctlGetWinsize(0, unix.TIOCGWINSZ)
 	if err != nil {
-		return -1, -1
+		return -1, -1, ErrUnknownTermSize
 	}
-	return int(ws.Col), int(ws.Row)
+	return int(ws.Col), int(ws.Row), nil
 }
 
-func moveCursor(x, y int) {
-	maxx, maxy := getTermSize()
+func moveCursorTo(x, y int) {
+	maxx, maxy, _ := getTermSize()
 	if x <= maxx && y <= maxy {
-		fmt.Printf(MoveTemplate, y, x)
+		fmt.Printf(CursorGotoTemplate, y, x)
 	}
 }
+
+func moveCursorUp(rows int) {
+	fmt.Printf(CursorMoveUpTemplate, rows)
+}
+
+func moveCursorDown(rows int) {
+	fmt.Printf(CursorMoveDownTemplate, rows)
+}
+
+func moveCursorLeft(columns int) {
+	fmt.Printf(CursorMoveLeftTemplate, columns)
+}
+
+func moveCursorRight(columns int) {
+	fmt.Printf(CursorMoveRightTemplate, columns)
+}
+
+func moveCursorToNextRow() {
+	fmt.Print(CursorMoveToNextRowTemplate)
+}
+
+func moveCursorToRow(row int) {
+	fmt.Printf(CursorMoveToRowTemplate, row)
+}
+
+func saveCursorPosition() {
+	fmt.Print(CursorSave)
+}
+
+func restoreCursorPosition() {
+	fmt.Print(CursorRestore)
+}
+
+// Color functions
 
 func getColorByName(colorname string) (string, error) {
 	if code, ok := colorMap[colorname]; ok {
@@ -43,17 +73,19 @@ func getBackgroundByName(colorname string) (string, error) {
 
 func getColorByID(id int) (string, error) {
 	if id >= 0 && id < 256 {
-		return fmt.Sprintf("\u001b[38;5;%vm", id), nil
+		return fmt.Sprintf(ColorIDTemplate, id), nil
 	}
 	return "", ErrUnknownColor
 }
 
 func getBackgroundByID(id int) (string, error) {
 	if id >= 0 && id < 256 {
-		return fmt.Sprintf("\u001b[48;5;%vm", id), nil
+		return fmt.Sprintf(BackgroundIDTemplate, id), nil
 	}
 	return "", ErrUnknownColor
 }
+
+// Printing functions
 
 func colorSprint(colorname string, a ...interface{}) string {
 	code, err := getColorByName(colorname)
@@ -61,6 +93,14 @@ func colorSprint(colorname string, a ...interface{}) string {
 		return fmt.Sprint(a...)
 	}
 	return code + fmt.Sprint(a...) + Reset
+}
+
+func colorSprintf(colorname string, format string, a ...interface{}) string {
+	code, err := getColorByName(colorname)
+	if err != nil {
+		return fmt.Sprintf(format, a...)
+	}
+	return fmt.Sprintf(code+format+Reset, a...)
 }
 
 func colorIDSprint(id int, a ...interface{}) string {
@@ -71,9 +111,22 @@ func colorIDSprint(id int, a ...interface{}) string {
 	return code + fmt.Sprint(a...) + Reset
 }
 
+func colorIDSprintf(id int, format string, a ...interface{}) string {
+	code, err := getColorByID(id)
+	if err != nil {
+		return fmt.Sprintf(format, a...)
+	}
+	return fmt.Sprintf(code+format+Reset, a...)
+}
+
 func printAtPositionAndReturn(x, y int, a ...interface{}) {
-	fmt.Print(SaveCursor)
-	moveCursor(x, y)
+	saveCursorPosition()
+	moveCursorTo(x, y)
 	fmt.Print(a...)
-	fmt.Print(RestoreCursor)
+	restoreCursorPosition()
+}
+
+func printAtPosition(x, y int, a ...interface{}) {
+	moveCursorTo(x, y)
+	fmt.Print(a...)
 }

@@ -1,8 +1,9 @@
 package termtools
 
+import "errors"
+
 const (
-	// The following constants hold ANSI escape sequences with font and background color codes
-	// and basic style escapes
+	// The following constants hold ANSI escape sequences setting color and style of output
 
 	//Basic 8 colors
 	Black   string = "\u001b[30m"
@@ -44,21 +45,30 @@ const (
 	BBrightCyan           = "\u001b[46;1m"
 	BBrightWhite          = "\u001b[47;1m"
 
-	//Styles (can be used separately or together with color and background codes)
+	// Color format string to use with 256 color codes. Needs int in range [0;255].
+	ColorIDTemplate      string = "\u001b[38;5;%vm"
+	BackgroundIDTemplate        = "\u001b[48;5;%vm"
+
+	//Styles. Can be used separately or together with color and background codes.
 	Bold      string = "\u001b[1m"
 	Underline        = "\u001b[4m"
 	Reversed         = "\u001b[7m"
 
-	//Reset escape sequence
+	// Reset escape sequence
 	Reset string = "\u001b[0m"
 
-	// SaveCursor - code to save cursor position
-	SaveCursor string = "\033[s"
+	// Cursor maniputation
+	CursorSave                  string = "\033[s"
+	CursorRestore                      = "\033[u"
+	CursorGotoTemplate                 = "\033[%v;%vH"
+	CursorMoveUpTemplate               = "\u001b[%vA"
+	CursorMoveDownTemplate             = "\u001b[%vB"
+	CursorMoveRightTemplate            = "\u001b[%vC"
+	CursorMoveLeftTemplate             = "\u001b[%vD"
+	CursorMoveToNextRowTemplate        = "\u001b[E"
+	CursorMoveToRowTemplate            = "\u001b[%vH"
 
-	//RestoreCursor code to restore cursor position
-	RestoreCursor string = "\033[u"
-
-	// Clear screen Codes
+	// Clear screen codes
 	Clear     string = "\u001b[2J"
 	ClearUp          = "\u001b[1J"
 	ClearDown        = "\u001b[0J"
@@ -67,9 +77,11 @@ const (
 	ClearL      string = "\u001b[2K"
 	ClearLLeft         = "\u001b[1K"
 	ClearLRight        = "\u001b[0K"
+)
 
-	// Format string to move cursor. Needs two values: y and x (in this order).
-	MoveTemplate = "\033[%v;%vH"
+var (
+	ErrUnknownColor    = errors.New("error: unknown color name or color id out of range [0;255]")
+	ErrUnknownTermSize = errors.New("error: could not find out terminal size")
 )
 
 var (
