@@ -8,7 +8,7 @@ func PrintPalette(width int) {
 
 }
 
-func Test_basicColors(t *testing.T) {
+func Test_BasicColors(t *testing.T) {
 	var p Printer
 	p.Println("Testing basic colors output")
 	width := 4

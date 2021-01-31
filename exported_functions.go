@@ -144,8 +144,8 @@ func RestoreCursorPosition() {
 // then returns cursor to the inital position (when the function was called).
 // Will print at current cursor position if terminal size is unavailable or supplied  x and y
 // are out of range (x > terrminal columns or y > terminal rows).
-func PrintAtPositionAndReturn(x, y int, a ...interface{}) {
-	printAtPositionAndReturn(x, y, a...)
+func PrintAtPositionAndReturn(column, row int, a ...interface{}) {
+	printAtPositionAndReturn(column, row, a...)
 }
 
 // PrintAtPosition moves cursor in the current terminal to the specified position and prints.
@@ -153,6 +153,6 @@ func PrintAtPositionAndReturn(x, y int, a ...interface{}) {
 // Print/Println etc. will output immediately after the printed out characters.
 // Will print at current cursor position if terminal size is unavailable or supplied  x and y
 // are out of range (x > terminal columns or y > terminal rows).
-func PrintAtPosition(x, y int, a ...interface{}) {
-	printAtPosition(x, y, a...)
+func PrintAtPosition(column, row int, a ...interface{}) {
+	printAtPosition(column, row, a...)
 }

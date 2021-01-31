@@ -5,8 +5,8 @@ import (
 	"io"
 )
 
-// Printer holds color and style settings and implements most methods as in fmt modure like Print, Println, Sprint etc.
-// adding color and styles to the input values.
+// Printer holds color and style settings and implements most methods as in fmt module like Print,
+// Println, Sprint etc. adding color and styles to the input values.
 type Printer struct {
 	color      string
 	background string
@@ -15,25 +15,45 @@ type Printer struct {
 	reversed   bool
 }
 
-// NewColorPrinter takes color name (string) and returns Printer with font color set to the requirement.
-// If supplied color name is invalid, the function will return an error.
-func NewColorPrinter(color string) (*Printer, error) {
-	var p Printer
-	code, err := getColorByName(color)
-	p.color = code
-	return &p, err
-}
-
-// NewPrinter returns instance of Printer with parameters set as requested
-func NewPrinter(color string, background string, bold, underline, reversed bool) (*Printer, error) {
+// NewPrinter takes font and background color names and three bool values (bool, underline, reversed) and
+// returns instance of Printer with requested properties set accordingly. Valid color and background names are:
+// "black", "blue", "cyan", "green", "magenta", "red", "white", "yellow", "brightblack", "brightblue",
+// "brightcyan", "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
+// If invalid color or background name is supplied then that color or background will not be set and
+// the function will return an error ErrUnknownColor. Other requested parameters will be set.
+func NewPrinter(fontcolor, backgroundcolor string, bold, underline, reversed bool) (*Printer, error) {
 	var p Printer
 	var result error
-	if code, err := getColorByName(color); err == nil {
+	if code, err := getColorByName(fontcolor); err == nil {
 		p.color = code
 	} else {
 		result = err
 	}
-	if code, err := getBackgroundByName(background); err == nil {
+	if code, err := getBackgroundByName(backgroundcolor); err == nil {
+		p.background = code
+	} else {
+		result = err
+	}
+	p.bold = bold
+	p.underline = underline
+	p.reversed = reversed
+	return &p, result
+}
+
+// NewPrinterID takes font and background color IDs and three bool values (bool, underline, reversed) and
+// returns instance of Printer with requested properties set accordingly. Valid color and background
+// IDs are ints in range [0;255]. If invalid color or background ID is supplied then that color or background
+// will not be set and the function will return an error ErrUnknownColor. Other requested parameters will
+// be set.
+func NewPrinterID(fontcolorID, backgroundcolorID int, bold, underline, reversed bool) (*Printer, error) {
+	var p Printer
+	var result error
+	if code, err := getColorByID(fontcolorID); err == nil {
+		p.color = code
+	} else {
+		result = err
+	}
+	if code, err := getBackgroundByID(backgroundcolorID); err == nil {
 		p.background = code
 	} else {
 		result = err
@@ -186,10 +206,10 @@ func (p *Printer) PrintAtPosition(column, row int, a ...interface{}) (n int, err
 
 // PrintAtPositionAndReturn moves cursor to specified column and row and issues Print
 // then moves cursor to initial position when method was called.
-func (p *Printer) PrintAtPositionAndReturn(x, y int, a ...interface{}) (n int, err error) {
+func (p *Printer) PrintAtPositionAndReturn(column, row int, a ...interface{}) (n int, err error) {
 	out := p.processString(a...)
 	saveCursorPosition()
-	moveCursorTo(x, y)
+	moveCursorTo(column, row)
 	defer restoreCursorPosition()
 	return fmt.Print(out)
 }
