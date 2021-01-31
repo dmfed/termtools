@@ -1,39 +1,49 @@
 # module termtools
 
-**termtools** is basically a collection of utilities to style console output.
+**termtools** is basically a collection of utilities to style console output on Linux systems.
 The module allows to colorize terminal output in a very simple and straighforward way.
 Most of the code is a wrapper around fmt module from Go's standard library. 
 
-The module also includes utility functions to control cursor position in terminal window.
+**termtools** module also includes utility functions to control cursor position in the terminal.
 
-**[See full package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools)**
+**Note: This README is NOT intended to document all of what termtools has to offer and only provides basic usage examples.** 
+**Please see full module documention at** **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** **for a complete list of what is available.**
 
-## Download termtools
+## Getting termtools
 
-**go get -u github.com/dmfed/termtools** to use in your code.
+**go get -u github.com/dmfed/termtools** and you are good to Go :) 
 
-## Usage
+## Basic usage
 
-First of all you can use can use ANSI escapes declared in the module directly like this:
+First of all you can directly use any ANSI escapes declared in the module. (For a complete list of exported constants see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)**.)
 
 ```go
-s := termtools.Red + "We're gophers" + termtools.Reset
-fmt.Println(s) // the string "We're gophers" will output in red.
+s := termtools.Red + "We're gophers" + termtools.Reset 	// adding escape for red and escape for color reset
+fmt.Println(s) 						// the string "We're gophers" will output in red.
 ```
-
-More common and clever way would be to use Printer:
+You can also get your string colorized using function similar to fmt.Sprint (same signature as Sprint, but first parameter is color name). 
 
 ```go
-var printer Printer 									// Initializes new Printer
-printer.SetColorID(9) 									// Sets color by id (see below)
-printer.Println("This will output in orange") 			// This prints in orange
-printer.SetColor("red")									// Sets color by name 
-printer.Println("This will output in red")				// This prints in red
-printer.ToggleUnderline()								// swithces undeline mode on
+mystring := termtools.ColorSprint("red", "This will print in red") // Colorizes input string
+fmt.Println(mystring)
+```
+See below for a full list of supported color names. 
+
+## Using Printer
+
+More clever way would be to use Printer. 
+
+```go
+var printer Printer 					// Initializes new Printer
+printer.SetColorID(9) 					// Sets color by id (9 is orange)
+printer.Println("This will output in orange") 		// This prints in orange
+printer.SetColor("red")					// Sets color by name 
+printer.Println("This will output in red")		// This prints in red
+printer.ToggleUnderline()				// switches undeline mode on
 printer.Println("This will output in undelined red")	// prints in underlined red
 ```
 
-Font and backgrount colors can be set either by color name (supplied as string) or by color numeric id ranging from 0 to 255 inclusive. To set font or background color by name use **SetColor(colorname string)** and **SetBackground(colorname string)** methods of Printer accordingly. To set color or background by numeric ID use **SetColorID(colorID int)** and **SetBackgroundID(colorID int)** methods of Printer.
+Font and backgrount colors can be set either by color name (supplied as string) or by color numeric id ranging from 0 to 255 inclusive. To set font or background color by name use **SetColor(colorname string)** and **SetBackground(colorname string)** methods of Printer accordingly. To set color or background by numeric ID use **SetColorID(colorID int)** and **SetBackgroundID(colorID int)** methods of Printer. See **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** for a complete list of Printer methods.
 
 Supported color names are:
 
@@ -43,44 +53,58 @@ Color numeric IDs are as follows:
 
 ![image of palette with colors numbered 0-255](https://github.com/dmfed/termtools/blob/main/palette.png)
 
-You can see the above palette in your terminal. Just cd into the repo and issue **go test** It will output 
-the pallette with codes. Or issue **go run samples/palette.go**
+You can see the above palette in your terminal. Just **git clone https://github.com/dmfed/termtools/** then **cd** into the repo and issue **go test**. The test will output known colors and the pallette with codes. Or see **samples/palette.go**
 
-*Note that some of these are known to not display correctly in some shells and terminals depending on your settings.*
+*NOTE: some of these colors are known to not display correctly in some shells and terminals depending on your settings.*
 
-Printer also has three modes: bold, reversed and underline. Bold and underline are self explanatory. Reversed mode if switched on makes Printer output font colored with background color and background colored with font color. These three modes can be toggled on and off with **ToggleBold()**, **ToggleReversed()**, and **ToggleUnderline()** methods of Printer.
+## Printer modes: bold, underline, reversed
+Printer has three modes: **bold**, **reversed** and **underline**. Bold and underline are self explanatory. Reversed mode if switched on makes Printer output font colored with background color and background colored with font color (basically swaps font and background colors). These modes can be toggled on and off with **ToggleBold()**, **ToggleReversed()**, and **ToggleUnderline()** methods of Printer. For a complete list of Printer methods see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)**.
 
+## NewPrinter and NewPrinterID
 Printer instance can be initialized with all options set to needed values at once. There are two functions aimed at this:
 
-**func NewPrinter(fontcolor, backgroundcolor string, bold, underline, reversed bool) (*Printer, error)**
+**func NewPrinter(fontcolor, backgroundcolor string, bold, underline, reversed bool) (\*Printer, error)**
 
-**func NewPrinterID(fontcolorID, backgroundcolorID int, bold, underline, reversed bool) (*Printer, error)**
+**func NewPrinterID(fontcolorID, backgroundcolorID int, bold, underline, reversed bool) (\*Printer, error)**
 
 ```go
-printer, err := NewPrinter("red", "", false, false, false) // returns new Printer with font set to red
+printer, err := NewPrinter("red", "", false, true, false) // returns new Printer with font set to red underline
 if err != nil {
 	// handle error 
 }
 printer.Print("Hello, world!")
 ```
+## Printing methods
+Printer type implements most print methods as in fmt module from standard library mirroring their signatures, names and behaviour. You can call Println, Print, Sprint, Sprintf, Errorf etc. In fact printing methods just wrap around fmt methods by adding required ANSI escapes to the original values passed.
 
-Printer type implements most print methods as in fmt module from standard library mirroring their signatures
-and names. You can call Println, Print, Sprint, Sprintf, Errorf etc. In fact termtools just wraps around fmt methods only adding required ANSI escapes to the original values passed and does nothing more than that.
-
-For example fhe following line adds color escape codes to the input:
+For example fhe following adds color escape codes to the input and color reset escape at the end:
 ```go
-p := termtools.Printer{} 		// Initializes now Printer
-p.SetColor("green") 			// Sets Printer color to green
-s := p.Sprint("Hello, world!") 	// s now holds "Hello, world!" with color prefix and reset suffix attached.
+greenprinter := termtools.Printer{} 		// initializes new Printer
+greenprinter.SetColor("green") 			// sets Printer color to green
+s := greenprinter.Sprint("Hello, world!") 	// s now holds "Hello, world!" with green color prefix and reset suffix attached.
 ```
-Note that **len(p.Sprint("Hello, world!"))** will not be the same as **len(fmt.Sprint("Hello, world!"))** because ANSI escapes actually add to the length of the output string. This might be annoying if you're trying
-to keep output centered horizontally and rely on calculation of string length. 
-
-Printer can also be initialized 
+Note that **len(p.Sprint("Hello, world!"))** in the above example will not be the same as **len(fmt.Sprint("Hello, world!"))** because ANSI escapes actually add to the length of the output string. This might be annoying if you're trying to keep output centered horizontally and rely on calculation of string length.
 
 For a detailed listing of module functions and types **[see package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools)**
 
-A demo program is included in **samples** directory of the repo. Here's the listing:
+## Moving cursor around
+
+**termtools** includes functions and methods of Printer type to manipulate cursor position on screen, clear screen and delete line of text.
+
+```go
+func PrintCentered(s string) {
+	x, y, _ := termtools.GetTermSize() 				// returns number of columns and rows in current terminal
+	termtools.ClearScreen()						// clears screen
+	fmt.Print(strings.Repeat("\n", y))
+	s = termtools.ColorSprint("blue", s)				// sets input string color to blue
+	termtools.PrintAtPositionAndReturn(x/2-len(s)/2, y/2, s)	// prints at requested position and returns cursor
+}
+```
+Please see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** for a complete list of functions relating to cursor movement.
+
+## Example program
+
+A couple of example programs are included in **samples** directory of the repo. Here's the listing of one of the examples:
 
 ```go
 package main
@@ -124,3 +148,6 @@ func main() {
 	PrintStair("I'm a walrus!")
 }
 ```
+Thank you for reading this far :)
+
+I hope you might find this module useful. Any feedback is welcome. 
