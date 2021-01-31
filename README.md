@@ -75,7 +75,7 @@ if err != nil {
 printer.Print("Hello, world!")
 ```
 ## Printing methods
-Printer type implements most print methods as in fmt module from standard library mirroring their signatures, names and behaviour. You can call Println, Print, Sprint, Sprintf, Errorf etc. In fact printing methods just wrap around fmt methods by adding required ANSI escapes to the original values passed.
+Printer type implements most print methods as in fmt module from standard library copying their signatures, names and behaviour. You can call **Println, Print, Sprint, Sprintf, Errorf** etc. In fact printing methods just wrap around fmt functions by adding required ANSI escapes to the original values passed.
 
 For example fhe following adds color escape codes to the input and color reset escape at the end:
 ```go
@@ -83,13 +83,13 @@ greenprinter := termtools.Printer{} 		// initializes new Printer
 greenprinter.SetColor("green") 			// sets Printer color to green
 s := greenprinter.Sprint("Hello, world!") 	// s now holds "Hello, world!" with green color prefix and reset suffix attached.
 ```
-Note that **len(p.Sprint("Hello, world!"))** in the above example will not be the same as **len(fmt.Sprint("Hello, world!"))** because ANSI escapes actually add to the length of the output string. This might be annoying if you're trying to keep output centered horizontally and rely on calculation of string length.
+Note that **len(greenprinter.Sprint("Hello, world!"))** in the above example will not be the same as **len(fmt.Sprint("Hello, world!"))** because ANSI escapes actually add to the length of the output string. This might be annoying if you're trying to keep output centered horizontally and rely on calculation of string length.
 
-For a detailed listing of module functions and types **[see package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools)**
+For a detailed list of printing methods **[see package documention at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools)**
 
 ## Moving cursor around
 
-**termtools** includes functions and methods of Printer type to manipulate cursor position on screen, clear screen and delete line of text.
+**termtools** includes functions and methods of Printer type to manipulate cursor position on screen, clear screen and delete lines of text.
 
 ```go
 func PrintCentered(s string) {
@@ -100,9 +100,9 @@ func PrintCentered(s string) {
 	termtools.PrintAtPositionAndReturn(x/2-len(s)/2, y/2, s)	// prints at requested position and returns cursor
 }
 ```
-Please see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** for a complete list of functions relating to cursor movement.
+See also example program below. 
 
-## Example program
+## Example programs
 
 A couple of example programs are included in **samples** directory of the repo. Here's the listing of one of the examples:
 
@@ -148,6 +148,12 @@ func main() {
 	PrintStair("I'm a walrus!")
 }
 ```
+Please see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** for a complete docutmentation of **termtools**.
+
+## That's all folks!
+
 Thank you for reading this far :)
 
-I hope you might find this module useful. Any feedback is welcome. 
+I hope you might find **termtools** useful. Any feedback is welcome. 
+
+I'm planning to freeze all function signatures in v1.0.0. It will be released under compatibility promise. Until then some functions signatures might change and I'm also considering adding more utility functions. 
