@@ -1,58 +1,46 @@
 // Package termtools provides basic functionality to style console output on Linux
 //
 // Copyright 2021 Dmitry Fedotov
+//
+// Valid color names are: "black", "blue", "cyan", "green", "magenta",
+// "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
+// "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
+// Valid numbers are from 0 to 255 inclusive.
+// If color is not known, is empty, or int is out of range the function will return
+// empty string and an error.
+//
 package termtools
 
 import (
 	"fmt"
 )
 
-// GetColorCodeByID accepts int (from 0 to 255 inclusive) and returns ANSI escape
-// sequence for requested color. If id is out of range, returns an empty string.
-func GetColorCodeByID(colorID int) (string, error) {
-	return getColorByID(colorID)
+// GetColorCode accepts color identifier (string or int) and returns ANSI escape sequence
+// for requested color. If color is invalid the function will return
+// empty string and an error.
+func GetColorCode(color interface{}) (string, error) {
+	return getColorCode(color)
 }
 
-// GetBackgroundCodeByID accepts int (from 0 to 255 inclusive) and returns ANSI escape
-// sequence for requested background color. If id is out of range, returns an empty string.
-func GetBackgroundCodeByID(colorID int) (string, error) {
-	return getBackgroundByID(colorID)
+// GetBackgroundCode accepts color identifier (string or int) and returns ANSI escape sequence
+// for requested background color. If color is invalid the function will return
+// empty string and an error.
+func GetBackgroundCode(color interface{}) (string, error) {
+	return getBackgroundCode(color)
 }
 
-// GetColorCodeByName accepts color name (string) and returns ANSI escape sequence
-// for requested color. If name is invalid, returns an empty string and error.
-func GetColorCodeByName(colorname string) (string, error) {
-	return getColorByName(colorname)
+// Csprint formats using the default formats for its operands and returns the resulting string.
+// It accepts color color identifier (string or int). If color is invalid the function will return
+// fmt.Sprint(a).
+func Csprint(color interface{}, a ...interface{}) string {
+	return colorSprint(color, a...)
 }
 
-// GetBackgroundCodeByName accepts color name (string) and returns ANSI escape sequence
-// for requested backgrount color. If name is invalid, returns an empty string and error.
-func GetBackgroundCodeByName(colorname string) (string, error) {
-	return getBackgroundByName(colorname)
-}
-
-// ColorSprint formats using the default formats for its operands and returns the resulting string.
-// It accepts colorname (basic 16 colors). If colorname is invalid will return default format.
-func ColorSprint(colorname string, a ...interface{}) string {
-	return colorSprint(colorname, a...)
-}
-
-// ColorSprintf formats according to a format specifier and returns the resulting string.
-// It accepts colorname (basic 16 colors).
-func ColorSprintf(colorname string, format string, a ...interface{}) string {
-	return colorSprintf(colorname, format, a...)
-}
-
-// ColorIDSprint formats using the default formats for its operands and returns the resulting string.
-// It accepts color id in range [0;255]. If id is invalid will return default format.
-func ColorIDSprint(colorID int, a ...interface{}) string {
-	return colorIDSprint(colorID, a...)
-}
-
-// ColorIDSprintf formats according to a format specifier and returns the resulting string.
-// It accepts color id in range [0;255].
-func ColorIDSprintf(colorID int, format string, a ...interface{}) string {
-	return colorIDSprintf(colorID, format, a...)
+// Csprintf formats according to a format specifier and returns the resulting string.
+// It accepts color color identifier (string or int). If color is invalid the function will return
+// fmt.Sprintf(format, a).
+func Csprintf(color interface{}, format string, a ...interface{}) string {
+	return colorSprintf(color, format, a...)
 }
 
 // ClearScreen clears screen

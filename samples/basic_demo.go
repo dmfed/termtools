@@ -15,7 +15,7 @@ func PrintStair(a ...interface{}) {
 	_, y, _ := tt.GetTermSize() // gets size of terminal window
 	y = y/2 - 6
 	for xpos := 0; xpos <= 80; xpos = xpos + 5 {
-		p.SetColorID(rand.Intn(256))
+		p.SetColor(rand.Intn(256))
 		p.PrintAtPosition(xpos, y, a...)
 		y++
 	}
@@ -25,9 +25,9 @@ func PrintStair(a ...interface{}) {
 func main() {
 	// Simplest use is to call ColorSprint (same signature as in fmt.Sprint, but the
 	// first argument is the name of the color).
-	tt.ClearScreen()                                            // Clears Screen
-	tt.MoveCursorTo(0, 0)                                       // Moves cursor to top left
-	mystring := tt.ColorSprint("red", "This will print in red") // Colorizes input string
+	tt.ClearScreen()                                        // Clears Screen
+	tt.MoveCursorTo(0, 0)                                   // Moves cursor to top left
+	mystring := tt.Csprint("red", "This will print in red") // Colorizes input string
 	fmt.Println(mystring)
 
 	// Now using the Printer

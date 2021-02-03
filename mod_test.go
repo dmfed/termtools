@@ -39,7 +39,7 @@ func Test_ColorOutput(t *testing.T) {
 		}
 		p.Println()
 		for id := start; id < end; id++ {
-			p.SetBackgroundID(id)
+			p.SetBackground(id)
 			p.Printf("   ")
 			p.Reset()
 			p.Print(" ")
@@ -47,4 +47,11 @@ func Test_ColorOutput(t *testing.T) {
 		start = end
 		p.Println()
 	}
+}
+
+func Test_BlinkingMode(t *testing.T) {
+	p := Printer{}
+	p.SetColor(9)
+	p.ToggleBlinking()
+	p.Println("Thats all folks!")
 }

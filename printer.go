@@ -10,57 +10,31 @@ import (
 type Printer struct {
 	color      string
 	background string
+	prefix     string
+	suffix     string
 	bold       bool
 	underline  bool
 	reversed   bool
+	blinking   bool
 }
 
-// NewPrinter takes font and background color names and three bool values (bool, underline, reversed) and
-// returns instance of Printer with requested properties set accordingly. Valid color and background names are:
-// "black", "blue", "cyan", "green", "magenta", "red", "white", "yellow", "brightblack", "brightblue",
-// "brightcyan", "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
-// If invalid color or background name is supplied then that color or background will not be set and
-// the function will return an error ErrUnknownColor. Other requested parameters will be set.
-func NewPrinter(fontcolor, backgroundcolor string, bold, underline, reversed bool) (*Printer, error) {
-	var p Printer
-	var result error
-	if code, err := getColorByName(fontcolor); err == nil {
-		p.color = code
-	} else {
-		result = err
-	}
-	if code, err := getBackgroundByName(backgroundcolor); err == nil {
-		p.background = code
-	} else {
-		result = err
-	}
-	p.bold = bold
-	p.underline = underline
-	p.reversed = reversed
-	return &p, result
+// PrinterMode describes configuration of Printer
+type PrinterMode struct {
+	Name       string
+	Color      interface{}
+	Background interface{}
+	Prefix     string
+	Suffix     string
+	Bold       bool
+	Underline  bool
+	Reversed   bool
+	Blinking   bool
 }
 
-// NewPrinterID takes font and background color IDs and three bool values (bool, underline, reversed) and
-// returns instance of Printer with requested properties set accordingly. Valid color and background
-// IDs are ints in range [0;255]. If invalid color or background ID is supplied then that color or background
-// will not be set and the function will return an error ErrUnknownColor. Other requested parameters will
-// be set.
-func NewPrinterID(fontcolorID, backgroundcolorID int, bold, underline, reversed bool) (*Printer, error) {
+// NewPrinter takes
+func NewPrinter() (*Printer, error) {
 	var p Printer
 	var result error
-	if code, err := getColorByID(fontcolorID); err == nil {
-		p.color = code
-	} else {
-		result = err
-	}
-	if code, err := getBackgroundByID(backgroundcolorID); err == nil {
-		p.background = code
-	} else {
-		result = err
-	}
-	p.bold = bold
-	p.underline = underline
-	p.reversed = reversed
 	return &p, result
 }
 
@@ -132,40 +106,30 @@ func (p *Printer) Sprintln(a ...interface{}) string {
 	return fmt.Sprintln(out)
 }
 
-// SetColor sets color of printer defined by colorname input string.
-// If colorname is not known to the library or is empty the method will return an error.
-func (p *Printer) SetColor(colorname string) error {
-	code, err := getColorByName(colorname)
+// SetColor sets color of printer. Argument "color" must be either string or int.
+// Valid color names are: "black", "blue", "cyan", "green", "magenta",
+// "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
+// "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
+// Valid numbers are from 0 to 255 inclusive.
+// If color is not known, is empty, or int is out of range the method
+// will return an error and currently set Printer color will not be changed.
+func (p *Printer) SetColor(color interface{}) error {
+	code, err := getColorCode(color)
 	if err == nil {
 		p.color = code
 	}
 	return err
 }
 
-// SetColorID sets color of printer defined by id in range [0;255].
-// If id is out of range the method will return an error.
-func (p *Printer) SetColorID(colorID int) error {
-	code, err := getColorByID(colorID)
-	if err == nil {
-		p.color = code
-	}
-	return err
-}
-
-// SetBackground sets backgtound color of printer defined by colorname input string.
-// If colorname is not known or is empty the method will return an error.
-func (p *Printer) SetBackground(colorname string) error {
-	code, err := getBackgroundByName(colorname)
-	if err == nil {
-		p.background = code
-	}
-	return err
-}
-
-// SetBackgroundID sets color of printer defined by id in range [0;255].
-// If id is out of range the method will return an error.
-func (p *Printer) SetBackgroundID(colorID int) error {
-	code, err := getBackgroundByID(colorID)
+// SetBackground sets background color of printer. Argument color must be either string or int.
+// Valid color names are: "black", "blue", "cyan", "green", "magenta",
+// "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
+// "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
+// Valid numbers are from 0 to 255 inclusive.
+// If color is not known, is empty, or int is out of range the method
+// will return an error and currently set Printer color will not be changed.
+func (p *Printer) SetBackground(color interface{}) error {
+	code, err := getBackgroundCode(color)
 	if err == nil {
 		p.background = code
 	}
@@ -187,6 +151,11 @@ func (p *Printer) ToggleReversed() {
 	p.reversed = !p.reversed
 }
 
+// ToggleBlinking toggles blinking mode of Printer
+func (p *Printer) ToggleBlinking() {
+	p.blinking = !p.blinking
+}
+
 // Reset resets printer state to initial state (no color, no background, bold, underline and reversed modes turned off).
 func (p *Printer) Reset() {
 	p.color = ""
@@ -194,6 +163,7 @@ func (p *Printer) Reset() {
 	p.bold = false
 	p.underline = false
 	p.reversed = false
+	p.blinking = false
 }
 
 // PrintAtPosition moves cursor to specified column and row and issues Print
@@ -260,10 +230,13 @@ func (p *Printer) processString(a ...interface{}) string {
 	if p.reversed {
 		out += Reversed
 	}
-	if out == "" {
-		return fmt.Sprint(a...)
+	if p.blinking {
+		out += Blinking
 	}
-	out += fmt.Sprint(a...)
+	if out == "" {
+		return p.prefix + fmt.Sprint(a...) + p.suffix
+	}
+	out += p.prefix + fmt.Sprint(a...) + p.suffix
 	out += Reset
 	return out
 }

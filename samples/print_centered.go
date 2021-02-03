@@ -12,7 +12,7 @@ func PrintCentered(s string) {
 	x, y, _ := termtools.GetTermSize()
 	termtools.ClearScreen()
 	fmt.Print(strings.Repeat("\n", y))
-	s = termtools.ColorSprint("blue", s)
+	s = termtools.Csprint("blue", s)
 	termtools.PrintAtPositionAndReturn(x/2-len(s)/2, y/2, s)
 }
 

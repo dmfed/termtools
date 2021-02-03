@@ -7,7 +7,7 @@ import (
 )
 
 // PrintPalette outputs 256 colors with their IDs
-func PrintPalette(width int) {
+func PrintPalette(width int, combine bool) {
 	x, _, _ := termtools.GetTermSize()
 	if width < 1 || (width*3+width) > x { // default to 80 columns if in doubt
 		width = 20
@@ -19,13 +19,19 @@ func PrintPalette(width int) {
 		if end > 256 {
 			end = 256
 		}
-		for id := start; id < end; id++ {
-			p.Printf("%3d ", id)
+		if !combine {
+			for id := start; id < end; id++ {
+				p.Printf("%3d ", id)
+			}
+			p.Println()
 		}
-		p.Println()
 		for id := start; id < end; id++ {
-			p.SetBackgroundID(id)
-			p.Printf("   ")
+			p.SetBackground(id)
+			if combine {
+				p.Printf("%3d", id)
+			} else {
+				p.Print("   ")
+			}
 			p.Reset()
 			p.Print(" ")
 		}
@@ -36,7 +42,10 @@ func PrintPalette(width int) {
 }
 
 func main() {
-	var width = flag.Int("w", 20, "How many color samples to print on a line?")
+	var (
+		width   = flag.Int("w", 20, "How many color samples to print on a line?")
+		combine = flag.Bool("c", false, "Print color codes on color samples")
+	)
 	flag.Parse()
-	PrintPalette(*width)
+	PrintPalette(*width, *combine)
 }
