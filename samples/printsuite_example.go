@@ -2,8 +2,6 @@ package main
 
 import "github.com/dmfed/termtools"
 
-var prnt = termtools.PrintSuite{}
-
 var configAddCode string = `configs := []termtools.PrinterConfig{
 	{Name: "error", Color: "red"},
 	{Name: "notify", Color: "green", Underline: true}}
@@ -14,6 +12,7 @@ if err := prnt.Configure(configs...); err != nil {
 func main() {
 	termtools.ClearScreen()
 	termtools.MoveCursorHome()
+	var prnt = termtools.PrintSuite{}
 	prnt.Println("This is an example of using PrintSuite.\n\nWe just declared var prnt = termtools.PrintSuite{}. This is the default embedded printer printing\nusing prnt.Println(). It is safe to declare PrintSuite and use it straight away.\n")
 	configs := []termtools.PrinterConfig{
 		{Name: "error", Color: "red"},

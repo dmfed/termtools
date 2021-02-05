@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrNameEmpty = errors.New("error: printer name must not be empty string")
+	ErrFailedToSetColor      = errors.New("error: failed to set printer color")
+	ErrFailedToSetBackground = errors.New("error: failed to set printer background")
 )
 
 // Printer holds color and style settings and implements most methods as in fmt module like Print,
@@ -21,6 +22,7 @@ type Printer struct {
 	underline  bool
 	reversed   bool
 	blinking   bool
+	name       string
 }
 
 // PrinterConfig describes configuration of Printer
@@ -42,11 +44,9 @@ type PrinterConfig struct {
 // NewPrinter takes
 func NewPrinter(conf PrinterConfig) (p *Printer, err error) {
 	p = &Printer{}
-	if conf.Name == "" {
-		err = ErrNameEmpty
-		return
-	}
 	// TODO: Probably rewrite two blocks below using unexported funcs.
+	p.bold, p.underline, p.reversed, p.blinking = conf.Bold, conf.Underline, conf.Reversed, conf.Blinking
+	p.prefix, p.suffix = conf.Prefix, conf.Suffix
 	if conf.Color != nil {
 		if err = p.SetColor(conf.Color); err != nil {
 			return
@@ -57,8 +57,6 @@ func NewPrinter(conf PrinterConfig) (p *Printer, err error) {
 			return
 		}
 	}
-	p.bold, p.underline, p.reversed, p.blinking = conf.Bold, conf.Underline, conf.Reversed, conf.Blinking
-	p.prefix, p.suffix = conf.Prefix, conf.Suffix
 	err = nil
 	return
 }
@@ -143,11 +141,11 @@ func (p *Printer) Sprintln(a ...interface{}) string {
 // If color is not known, is empty, or int is out of range the method
 // will return an error and currently set Printer color will not be changed.
 func (p *Printer) SetColor(color interface{}) error {
-	code, err := getColorCode(color)
-	if err == nil {
+	if code, err := getColorCode(color); err == nil {
 		p.color = code
+		return nil
 	}
-	return err
+	return ErrFailedToSetColor
 }
 
 // SetBackground sets background color of printer. Argument color must be either string or int.
@@ -158,11 +156,11 @@ func (p *Printer) SetColor(color interface{}) error {
 // If color is not known, is empty, or int is out of range the method
 // will return an error and currently set Printer color will not be changed.
 func (p *Printer) SetBackground(color interface{}) error {
-	code, err := getBackgroundCode(color)
-	if err == nil {
+	if code, err := getBackgroundCode(color); err == nil {
 		p.background = code
+		return nil
 	}
-	return err
+	return ErrFailedToSetBackground
 }
 
 // Modes Methods
@@ -197,7 +195,7 @@ func (p *Printer) Reset() {
 	p.blinking = false
 }
 
-// Methods with cursor movement
+// Methods implementing cursor movement
 
 // PrintAtPosition moves cursor to specified column and row and issues Print
 // It does not return to the initial position. See also PrintAtPositionAndReturn method.
@@ -217,32 +215,37 @@ func (p *Printer) PrintAtPositionAndReturn(column, row int, a ...interface{}) (n
 	return fmt.Print(out)
 }
 
-// MoveTo places cursor at the specafied column and row
+// MoveTo places cursor at the specafied column and row.
 func (p *Printer) MoveTo(column, row int) {
 	moveCursorTo(column, row)
 }
 
-// MoveUp moves cursor up specified number of rows
+// MoveHome places cursor at the top left corner of the screen.
+func (p *Printer) MoveHome() {
+	moveCursorHome()
+}
+
+// MoveUp moves cursor up specified number of rows.
 func (p *Printer) MoveUp(rows int) {
 	moveCursorUp(rows)
 }
 
-// MoveDown moves cursor down specified number of rows
+// MoveDown moves cursor down specified number of rows.
 func (p *Printer) MoveDown(rows int) {
 	moveCursorDown(rows)
 }
 
-// MoveLeft moves cursor left specified number of columns
+// MoveLeft moves cursor left specified number of columns.
 func (p *Printer) MoveLeft(columns int) {
 	moveCursorLeft(columns)
 }
 
-// MoveRight moves cursor right specified number of columns
+// MoveRight moves cursor right specified number of columns.
 func (p *Printer) MoveRight(columns int) {
 	moveCursorRight(columns)
 }
 
-// MoveToNextRow moves cursor to the next row
+// MoveToNextRow moves cursor to the next row..
 func (p *Printer) MoveToNextRow() {
 	moveCursorToNextRow()
 }

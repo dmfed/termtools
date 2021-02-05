@@ -2,11 +2,15 @@
 //
 // Copyright 2021 Dmitry Fedotov
 //
-// Valid color names are: "black", "blue", "cyan", "green", "magenta",
+// import "github.com/dmfed/termtools"
+//
+// Whenever color or background color of type interface{} is required by signature
+// of a method or function, either string or in may be supplied.
+// Valid color names (to be passed as string) are: "black", "blue", "cyan", "green", "magenta",
 // "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
 // "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
-// Valid numbers are from 0 to 255 inclusive.
-// If color is not known, is empty, or int is out of range the function will return
+// Valid colod IDs (to be passed as int) are from 0 to 255 inclusive.
+// If color value is of different type, is empty, or int is out of range the function will return
 // empty string and an error.
 //
 package termtools
