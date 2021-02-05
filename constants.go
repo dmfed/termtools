@@ -62,6 +62,7 @@ const (
 	// Cursor maniputation
 	CursorSave                  string = Esc + "[s"
 	CursorRestore                      = Esc + "[u"
+	CursorHome                         = Esc + "[H"
 	CursorGotoTemplate                 = Esc + "[%v;%vH"
 	CursorMoveUpTemplate               = Esc + "[%vA"
 	CursorMoveDownTemplate             = Esc + "[%vB"

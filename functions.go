@@ -23,6 +23,10 @@ func moveCursorTo(x, y int) {
 	}
 }
 
+func moveCursorHome() {
+	fmt.Print(CursorHome)
+}
+
 func moveCursorUp(rows int) {
 	fmt.Printf(CursorMoveUpTemplate, rows)
 }

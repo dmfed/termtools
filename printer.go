@@ -1,8 +1,13 @@
 package termtools
 
 import (
+	"errors"
 	"fmt"
 	"io"
+)
+
+var (
+	ErrNameEmpty = errors.New("error: printer name must not be empty string")
 )
 
 // Printer holds color and style settings and implements most methods as in fmt module like Print,
@@ -18,25 +23,47 @@ type Printer struct {
 	blinking   bool
 }
 
-// PrinterMode describes configuration of Printer
-type PrinterMode struct {
+// PrinterConfig describes configuration of Printer
+// Valid Color and Background values are string (see package documentation for a list
+// of supported color names) or int ranging from 0 to 255 inclusive.
+type PrinterConfig struct {
+	// Name should never be empty string
 	Name       string
 	Color      interface{}
 	Background interface{}
-	Prefix     string
-	Suffix     string
 	Bold       bool
 	Underline  bool
 	Reversed   bool
 	Blinking   bool
+	Prefix     string
+	Suffix     string
 }
 
 // NewPrinter takes
-func NewPrinter() (*Printer, error) {
-	var p Printer
-	var result error
-	return &p, result
+func NewPrinter(conf PrinterConfig) (p *Printer, err error) {
+	p = &Printer{}
+	if conf.Name == "" {
+		err = ErrNameEmpty
+		return
+	}
+	// TODO: Probably rewrite two blocks below using unexported funcs.
+	if conf.Color != nil {
+		if err = p.SetColor(conf.Color); err != nil {
+			return
+		}
+	}
+	if conf.Background != nil {
+		if err = p.SetBackground(conf.Background); err != nil {
+			return
+		}
+	}
+	p.bold, p.underline, p.reversed, p.blinking = conf.Bold, conf.Underline, conf.Reversed, conf.Blinking
+	p.prefix, p.suffix = conf.Prefix, conf.Suffix
+	err = nil
+	return
 }
+
+// Printing methods
 
 // Errorf formats according to a format specifier and returns the string as a value that satisfies error.
 func (p *Printer) Errorf(format string, a ...interface{}) error {
@@ -106,6 +133,8 @@ func (p *Printer) Sprintln(a ...interface{}) string {
 	return fmt.Sprintln(out)
 }
 
+// Color methods
+
 // SetColor sets color of printer. Argument "color" must be either string or int.
 // Valid color names are: "black", "blue", "cyan", "green", "magenta",
 // "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
@@ -136,6 +165,8 @@ func (p *Printer) SetBackground(color interface{}) error {
 	return err
 }
 
+// Modes Methods
+
 // ToggleBold toggles bold mode of Printer
 func (p *Printer) ToggleBold() {
 	p.bold = !p.bold
@@ -165,6 +196,8 @@ func (p *Printer) Reset() {
 	p.reversed = false
 	p.blinking = false
 }
+
+// Methods with cursor movement
 
 // PrintAtPosition moves cursor to specified column and row and issues Print
 // It does not return to the initial position. See also PrintAtPositionAndReturn method.
@@ -236,7 +269,6 @@ func (p *Printer) processString(a ...interface{}) string {
 	if out == "" {
 		return p.prefix + fmt.Sprint(a...) + p.suffix
 	}
-	out += p.prefix + fmt.Sprint(a...) + p.suffix
-	out += Reset
+	out += p.prefix + fmt.Sprint(a...) + p.suffix + Reset
 	return out
 }

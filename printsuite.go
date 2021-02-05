@@ -1,6 +1,9 @@
 package termtools
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrUnknownPrinter = errors.New("error: no such printer")
@@ -16,6 +19,25 @@ type PrintSuite struct {
 	Printer
 }
 
+// Configure accepts zero or more PrinterConfig and adds printers to
+// PrintSuite. If one or more configs fail to process the method will
+// return an error listing names that failed to add.
+func (suite *PrintSuite) Configure(configs ...PrinterConfig) error {
+	suite.ensureMapExists()
+	failing := ""
+	for _, conf := range configs {
+		if p, err := NewPrinter(conf); err == nil {
+			suite.available[conf.Name] = p
+		} else {
+			failing += conf.Name + " "
+		}
+	}
+	if failing != "" {
+		return fmt.Errorf("error: failed to add the following names: %v", failing)
+	}
+	return nil
+}
+
 // Use returns instance of printer with requested printername. It returns no error
 // even if printer name is incorrect. In this case a default Printer instance is returned.
 func (suite *PrintSuite) Use(printername string) *Printer {
@@ -26,27 +48,36 @@ func (suite *PrintSuite) Use(printername string) *Printer {
 	return &Printer{}
 }
 
-// Default switches active printer of PRintSuite to default Printer{} (with no settings)
-func (suite *PrintSuite) Default() {
+// UseDefault acts in the same manner as Use and returns printer with no style options set
+// which will output the same as fmt module.
+func (suite *PrintSuite) UseDefault() *Printer {
+	return &Printer{}
+}
+
+// SwitchToDefault switches active printer of PrintSuite to default Printer{} (with no settings)
+func (suite *PrintSuite) SwitchToDefault() {
 	suite.Printer = Printer{}
 }
 
-// SwitchTo sets the default PrintSuite printer to printer with requested name
+// SwitchTo sets the default PrintSuite printer to printer with requested name.
+// If printername is not known the method will return an error without changes to
+// current configuration.
 func (suite *PrintSuite) SwitchTo(printername string) error {
 	suite.ensureMapExists()
 	if printer, ok := suite.available[printername]; ok && printer != nil {
 		suite.Printer = *printer
 		// note that we're dereferencing here, so changes to currently
-		// used printer will not affect stored configurations
+		// used printer configuration will not affect stored configurations
 		return nil
 	}
 	return ErrUnknownPrinter
 }
 
-// AddPrinter accepts
+// AddPrinter accepts name of printer and pointer to printer. If nil pointer or empty string
+// is passed or if printername is already added the method will fail with an error.
 func (suite *PrintSuite) AddPrinter(printername string, p *Printer) error {
 	suite.ensureMapExists()
-	if _, ok := suite.available[printername]; !ok && p != nil {
+	if _, ok := suite.available[printername]; !ok && p != nil && printername != "" {
 		suite.available[printername] = p
 		return nil
 	}

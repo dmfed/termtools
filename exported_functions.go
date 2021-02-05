@@ -75,7 +75,8 @@ func ClearLineRight() {
 
 // GetTermSize returns Current terminal size (in characters)
 // it may fail to get correct values and will return -1, -1 in
-// this case. If you're relying on output always check error.
+// this case. If you're relying on output to position cursor on screen
+// always check error.
 func GetTermSize() (int, int, error) {
 	return getTermSize()
 }
@@ -84,6 +85,12 @@ func GetTermSize() (int, int, error) {
 // Will do nothing if x or y are out of bounds or we can not get size of terminal.
 func MoveCursorTo(x, y int) {
 	moveCursorTo(x, y)
+}
+
+// MoveCursorHome moves cursor to the upper left corner of the screen.
+// Essetially the same as MoveCursorTo(0, 0).
+func MoveCursorHome() {
+	moveCursorHome()
 }
 
 // MoveCursorUp moves cursor up specified number of rows
