@@ -12,18 +12,26 @@ var (
 	ErrEmptyName                    = errors.New("error: printer name may not be empty string")
 )
 
-// PrintSuite holds pointers to one ore more instances of Printer and
-// allows to switch available printers on the fly to use differrent
-// output styles. An instance of printer is embedded into PrintSuite so
-// you can call printer methods on it directly.
+// PrintSuite zero ore more configurations of Printer which
+// allows to switch added printer configurations on the fly to use differrent
+// output styles. Printer configurations can be added with AddPrinter() and Configure() methods.
+//
+// An instance of printer is embedded into PrintSuite so
+// you can call printer methods on it directly. By default the embedded printer
+// acts exactly the same way as functions from fmt module of standard library
+// (does not alter output in any way). Embedded printer configuration can be changed either
+// by calling termtools.Printer methods or by adding a new prtinter configuration and switching
+// to it with SwitchTo().
 type PrintSuite struct {
 	Printer
 	available map[string]*Printer
 }
 
-// Configure accepts zero or more PrinterConfig and adds printers to
+// Configure accepts one or more PrinterConfig and adds printers to
 // PrintSuite. If one or more configs fail to process the method will
 // return an error listing names that failed to add.
+// Important: if method encounters empty Name field in PrinterConfig(s), the method will
+// fail with an error and subsequent configurations will not be processed.
 func (suite *PrintSuite) Configure(configs ...PrinterConfig) error {
 	suite.ensureMapExists()
 	failing := ""
@@ -43,8 +51,8 @@ func (suite *PrintSuite) Configure(configs ...PrinterConfig) error {
 	return nil
 }
 
-// Use returns instance of printer with requested printername. It returns no error
-// even if printer name is incorrect. In this case a default Printer instance is returned.
+// Use returns instance of printer with requested printername. If printername is invalid
+// (no printer with such name has been added or name is empty string) a default Printer instance is returned.
 func (suite *PrintSuite) Use(printername string) *Printer {
 	suite.ensureMapExists()
 	if printer, ok := suite.available[printername]; ok {
@@ -53,13 +61,13 @@ func (suite *PrintSuite) Use(printername string) *Printer {
 	return &Printer{}
 }
 
-// UseDefault acts in the same manner as Use and returns printer with no style options set
-// which will output the same as fmt module.
+// UseDefault acts in the same manner as Use but always returns printer with no style options set
+// which will output the same as fmt module functions.
 func (suite *PrintSuite) UseDefault() *Printer {
 	return &Printer{}
 }
 
-// SwitchTo sets the default PrintSuite printer to printer with requested name.
+// SwitchTo sets the embedded PrintSuite printer to printer with requested name.
 // If printername is not known the method will return an error without changes to
 // current configuration.
 func (suite *PrintSuite) SwitchTo(printername string) error {
@@ -73,7 +81,7 @@ func (suite *PrintSuite) SwitchTo(printername string) error {
 	return ErrUnknownPrinter
 }
 
-// SwitchToDefault switches active printer of PrintSuite to default Printer{} (with no settings)
+// SwitchToDefault switches active printer of PrintSuite to default Printer{} with no settings.
 func (suite *PrintSuite) SwitchToDefault() {
 	suite.Printer = Printer{}
 }

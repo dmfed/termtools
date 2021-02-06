@@ -1,12 +1,14 @@
 # module termtools
 
+version 1.0.0
+
 **termtools** is basically a collection of utilities to style console output on Linux systems.
 The module allows to colorize terminal output in a very simple and straighforward way.
 Most of the code is a wrapper around fmt module from Go's standard library. 
 
 **termtools** module also includes utility functions to control cursor position in the terminal.
 
-**Note: This README is NOT intended to document all of what termtools has to offer and only provides basic usage examples.** 
+**Note: This README is NOT intended to document all of what termtools has to offer and only provides some usage examples.** 
 **Please see full module documentation at** **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)** **for a complete list of what is available.**
 
 ## Getting termtools
@@ -55,12 +57,12 @@ Color numeric IDs are as follows:
 
 ![image of palette with colors numbered 0-255](https://raw.githubusercontent.com/dmfed/termtools/main/palette.png)
 
-You can see the above palette in your terminal. Just **git clone https://github.com/dmfed/termtools/** then **cd** into the repo and issue **go test**. The test will output known colors and the pallette with codes. See also see **samples/palette.go**
+To see the above palette in your terminal **git clone https://github.com/dmfed/termtools/** then **cd** into the repo and issue **go test**. The test will output known colors and the pallette with codes. See also see **samples/palette.go**
 
-*NOTE: some of these colors are known to not display correctly in some shells and terminals depending on your settings.*
+*NOTE: colors may not display correctly in some shells and terminals depending on your settings.*
 
-## Printer modes: bold, underline, reversed
-Printer has four modes: **bold**, **reversed**, **underline**, and **blinking**. Bold and underline are self explanatory. Reversed mode if switched on makes Printer output font colored with background color and background colored with font color (basically swaps font and background colors). These modes can be toggled on and off with **ToggleBold()**, **ToggleReversed()**, and **ToggleUnderline()** methods of Printer. For a complete list of Printer methods see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)**.
+## Printer modes: bold, underline, reversed, blinking
+Printer has four modes: **bold**, **reversed**, **underline**, and **blinking**. Bold, underline and blinking are self explanatory. Reversed mode if switched on swaps font and background colors). These modes can be toggled on and off with **ToggleBold()**, **ToggleBlinking()**, **ToggleReversed()**, and **ToggleUnderline()** methods of Printer. For a complete list of Printer methods see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)**.
 
 ## NewPrinter
 Printer instance can be initialized with all options set to needed values at once. Use **termtools.NewPrinter()** to set upinstance of Printer as required.
@@ -73,7 +75,6 @@ It accepts PrinterConfig as single argument.
 
 ```go
 type PrinterConfig struct {
-	// Name should never be empty string
 	Name       string
 	Color      interface{}
 	Background interface{}
@@ -129,10 +130,20 @@ p.Print("This starts at column 10, row 10")
 ```
 See also example program below.
 
-## Using PrintSuite type
+## Using PrintSuite
 
-**termtools.PrintSuite** can be an (almost full) replacement to fmt module from starndard library. It is intended to hold one or more instances of **termtools.Printer** and switch them on the fly. This way you
-can get different output styles for different types of message. In example below we set up PrintSuite to be available globally in the program then configure two printers (red and green underlined). 
+**termtools.PrintSuite** can act as an (almost) full replacement to fmt module from starndard library. It is intended to hold one or more instances of **termtools.Printer** and switch them on the fly. This way you
+can get different output styles for different kinds of messages in your program. 
+
+```go
+type PrintSuite struct {
+	Printer
+	// Has unexported field.
+}
+```
+**termtools.PrintSuite** embeds default printer, so you can call any printing method on it directly.
+
+In example below we set up PrintSuite to be available globally in the program then configure two printers (red and green underlined). 
 
 We then can use (for example) red printer to display error messages and green printer to display success notifications.
 
@@ -158,17 +169,20 @@ func main() {
 	// We now can use different printers for different kinds of messages anywhere in out program.
 	// For example print errors in red
 	prnt.Use("error").Print("We call prnt.Use(\"error\").Print() to output using printer named \"error\"\n")
+
 	// or print notifications in green
 	prnt.Use("notify").Print("and prnt.Use(\"notify\").Print() to use printer named \"notify\"\n")
-	// or use unstyled output for everything else like this:
+
+	// or use unstyled output of embedded printer for everything else like this:
 	prnt.Println("This will print without any styling.")
+
 	// or like this:
 	prnt.UseDefault().Println("This will print without any styling.")
 }
 ```
 **IMPORTANT: When passing termtools.PrinterConfig configuration(s) to PrintSuite Configure() method always make sure that Name field ot config(s) is NOT EMPTY. Otherwise Configure will fail with an error.** Some of passed configurations (precceding the one that is missing name) may be processed and PrintSuite will still be usable but the mathod will terminate upon encountering config with empty Name field.
 
-Note that Use() method in example above returns pointer to named printer, so you can call any Printer method directly. 
+Note that **Use()** method in example above returns pointer to named printer, so you can call any Printer method directly. 
 Also note that PrintSuite embeds Printer instance so any Printer method can be called on it without Use() (i.e **prnt.Println("This will print without any styling.")**). This will use embedded Printer instance.
 
 To change embedded printer style use SwitchTo(printername string).
@@ -242,4 +256,4 @@ Thank you for reading this far :)
 
 I hope you might find **termtools** useful. Any feedback is welcome. 
 
-I'm planning to freeze all function signatures in v1.0.0. It will be released under compatibility promise. Until then some functions signatures might change and I'm also considering adding and/or removing some stuff. 
+I'm planning to freeze all function signatures in v1.0.0. Until then some functions signatures might change and I'm also considering adding and/or removing some stuff. 

@@ -87,6 +87,8 @@ var (
 	ErrUnknownTermSize = errors.New("error: could not find out terminal size")
 )
 
+// these maps are used internally to get escapes for named colors
+// and styles
 var (
 	colorMap = map[string]string{
 		"black":         Black,

@@ -25,23 +25,32 @@ type Printer struct {
 	name       string
 }
 
-// PrinterConfig describes configuration of Printer
-// Valid Color and Background values are string (see package documentation for a list
-// of supported color names) or int ranging from 0 to 255 inclusive.
+// PrinterConfig describes configuration of Printer.
 type PrinterConfig struct {
-	// Name should never be empty string
-	Name       string
+	// Name identifies configuration when used
+	// with PrintSuite type. Name field is mandatory when passing PrinterConfig
+	// to PrintSuite Configure method!
+	//
+	// When setting up a Printer instance with NewPrinter() Name field may be omitted.
+	Name string
+	// Color and Backgrount fields may hold color name (as string) or color ID in range
+	// [0;255]. See package docs for list of available color names.
 	Color      interface{}
 	Background interface{}
-	Bold       bool
-	Underline  bool
-	Reversed   bool
-	Blinking   bool
-	Prefix     string
-	Suffix     string
+	// Bold, Underline, Reversed, Blinking switch relevant printer modes on if set to true.
+	Bold      bool
+	Underline bool
+	Reversed  bool
+	Blinking  bool
+	// Prefix and suffix are added to output if they are not empty strings.
+	Prefix string
+	Suffix string
 }
 
-// NewPrinter takes
+// NewPrinter takes PrinterConfig and returns pointer to Printer.
+// If invalid color(s) identifier is encountered the function returns
+// instance of printer with color(s) not set. Otherwise the printer is functional.
+// Check for errors to make sure that returned Printer is fully configured.
 func NewPrinter(conf PrinterConfig) (p *Printer, err error) {
 	p = &Printer{}
 	// TODO: Probably rewrite two blocks below using unexported funcs.
@@ -148,12 +157,7 @@ func (p *Printer) SetColor(color interface{}) error {
 	return ErrFailedToSetColor
 }
 
-// SetBackground sets background color of printer. Argument color must be either string or int.
-// Valid color names are: "black", "blue", "cyan", "green", "magenta",
-// "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
-// "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
-// Valid numbers are from 0 to 255 inclusive.
-// If color is not known, is empty, or int is out of range the method
+// SetBackground sets background color of printer. Argument color is the same as in SetColor method.
 // will return an error and currently set Printer color will not be changed.
 func (p *Printer) SetBackground(color interface{}) error {
 	if code, err := getBackgroundCode(color); err == nil {
@@ -161,6 +165,12 @@ func (p *Printer) SetBackground(color interface{}) error {
 		return nil
 	}
 	return ErrFailedToSetBackground
+}
+
+// SetPrefixSuffix configures Printer to always preceed output with prefix
+// and end output with suffix. Printer color and style settings apply to prefix and suffix.
+func (p *Printer) SetPrefixSuffix(prefix, suffix string) {
+	p.prefix, p.suffix = prefix, suffix
 }
 
 // Modes Methods
@@ -193,12 +203,15 @@ func (p *Printer) Reset() {
 	p.underline = false
 	p.reversed = false
 	p.blinking = false
+	p.prefix = ""
+	p.suffix = ""
 }
 
 // Methods implementing cursor movement
 
 // PrintAtPosition moves cursor to specified column and row and issues Print
-// It does not return to the initial position. See also PrintAtPositionAndReturn method.
+// It does not return to the initial position. It returns the number of bytes written and any write error encountered.
+// See also PrintAtPositionAndReturn method.
 func (p *Printer) PrintAtPosition(column, row int, a ...interface{}) (n int, err error) {
 	out := p.processString(a...)
 	moveCursorTo(column, row)
@@ -206,7 +219,7 @@ func (p *Printer) PrintAtPosition(column, row int, a ...interface{}) (n int, err
 }
 
 // PrintAtPositionAndReturn moves cursor to specified column and row and issues Print
-// then moves cursor to initial position when method was called.
+// then moves cursor to initial position when method was called. It returns the number of bytes written and any write error encountered.
 func (p *Printer) PrintAtPositionAndReturn(column, row int, a ...interface{}) (n int, err error) {
 	out := p.processString(a...)
 	saveCursorPosition()
@@ -215,7 +228,7 @@ func (p *Printer) PrintAtPositionAndReturn(column, row int, a ...interface{}) (n
 	return fmt.Print(out)
 }
 
-// MoveTo places cursor at the specafied column and row.
+// MoveTo places cursor at the specified column and row.
 func (p *Printer) MoveTo(column, row int) {
 	moveCursorTo(column, row)
 }

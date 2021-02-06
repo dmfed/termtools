@@ -1,17 +1,18 @@
 // Package termtools provides basic functionality to style console output on Linux
 //
+// v1.0.0
+//
 // Copyright 2021 Dmitry Fedotov
 //
-// import "github.com/dmfed/termtools"
+// See package README for usage examples: github.com/dmfed/termtools
 //
-// Whenever color or background color of type interface{} is required by signature
-// of a method or function, either string or in may be supplied.
+// General note concerning module usage:
+// Whenever color value of type interface{} is required by signature
+// of a method or function, either string or int may be supplied.
 // Valid color names (to be passed as string) are: "black", "blue", "cyan", "green", "magenta",
 // "red", "white", "yellow", "brightblack", "brightblue", "brightcyan",
 // "brightgreen", "brightmagenta", "brightred", "brightwhite", "brightyellow".
-// Valid colod IDs (to be passed as int) are from 0 to 255 inclusive.
-// If color value is of different type, is empty, or int is out of range the function will return
-// empty string and an error.
+// Valid color IDs (to be passed as int) are from 0 to 255 inclusive.
 //
 package termtools
 
@@ -77,22 +78,22 @@ func ClearLineRight() {
 	fmt.Print(ClearLRight)
 }
 
-// GetTermSize returns Current terminal size (in characters)
-// it may fail to get correct values and will return -1, -1 in
-// this case. If you're relying on output to position cursor on screen
+// GetTermSize returns current terminal size (number of columns and rows).
+// It may fail to get correct values and will return -1, -1 in
+// this case. If you're relying on output to precisely position cursor on screen
 // always check error.
-func GetTermSize() (int, int, error) {
+func GetTermSize() (columns int, rows int, err error) {
 	return getTermSize()
 }
 
-// MoveCursorTo moves cursor to the specified position on terminal screen.
+// MoveCursorTo moves cursor to the specified position in terminal. (0, 0) is upper left.
 // Will do nothing if x or y are out of bounds or we can not get size of terminal.
-func MoveCursorTo(x, y int) {
-	moveCursorTo(x, y)
+func MoveCursorTo(column, row int) {
+	moveCursorTo(column, row)
 }
 
 // MoveCursorHome moves cursor to the upper left corner of the screen.
-// Essetially the same as MoveCursorTo(0, 0).
+// Essentially the same as MoveCursorTo(0, 0).
 func MoveCursorHome() {
 	moveCursorHome()
 }
@@ -127,31 +128,31 @@ func MoveCursorToRow(row int) {
 	moveCursorToRow(row)
 }
 
-// SaveCursorPosition saves current cursor position.
+// SaveCursorPosition saves current cursor position and attributes.
 // Call RestoreCursorPosition() to return
 func SaveCursorPosition() {
 	saveCursorPosition()
 }
 
 // RestoreCursorPosition places cursor to original position when
-// SaveCursorPosition was called
+// SaveCursorPosition was called and restores attributes.
 func RestoreCursorPosition() {
 	restoreCursorPosition()
 }
 
-// PrintAtPositionAndReturn moves cursor in the current terminal to the specified position, prints and
-// then returns cursor to the inital position (when the function was called).
-// Will print at current cursor position if terminal size is unavailable or supplied  x and y
-// are out of range (x > terrminal columns or y > terminal rows).
+// PrintAtPositionAndReturn moves cursor in the current terminal to the specified position, prints, and
+// then returns cursor to the inital position.
+// Will print at current cursor position if terminal size is unavailable or supplied column and row
+// are out of range.
 func PrintAtPositionAndReturn(column, row int, a ...interface{}) {
 	printAtPositionAndReturn(column, row, a...)
 }
 
 // PrintAtPosition moves cursor in the current terminal to the specified position and prints.
 // It does not return the cursor to the initial position so subsequent call to
-// Print/Println etc. will output immediately after the printed out characters.
-// Will print at current cursor position if terminal size is unavailable or supplied  x and y
-// are out of range (x > terminal columns or y > terminal rows).
+// Print/Println etc. will output immediately after the previous output.
+// Will print at current cursor position if terminal size is unavailable or supplied column and row
+// are out of range.
 func PrintAtPosition(column, row int, a ...interface{}) {
 	printAtPosition(column, row, a...)
 }

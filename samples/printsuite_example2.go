@@ -6,7 +6,7 @@ var prnt = termtools.PrintSuite{} // we define prnt globally to reuse it from an
 
 func setupPrinters() {
 	configs := []termtools.PrinterConfig{
-		{Name: "error", Color: "red"},
+		{Name: "error", Color: "red", Prefix: ">>> "},
 		{Name: "notify", Color: "green", Underline: true}}
 	if err := prnt.Configure(configs...); err != nil {
 		prnt.Println(err)
