@@ -38,12 +38,12 @@ See below for a full list of supported color names.
 More clever way would be to use Printer. 
 
 ```go
-var printer termtools.Printer 							// Initializes new Printer
-printer.SetColor(9) 									// Sets color by id (9 is orange)
-printer.Println("This will output in orange") 			// This prints in orange
-printer.SetColor("red")									// Sets color by name 
-printer.Println("This will output in red")				// This prints in red
-printer.ToggleUnderline()								// switches undeline mode on
+var printer termtools.Printer 				// Initializes new Printer
+printer.SetColor(9) 					// Sets color (9 is orange)
+printer.Println("This will output in orange") 		// This prints in orange
+printer.SetColor("red")					// Sets color
+printer.Println("This will output in red")		// This prints in red
+printer.ToggleUnderline()				// switches undeline mode on
 printer.Println("This will output in undelined red")	// prints in underlined red
 ```
 
@@ -65,11 +65,11 @@ To see the above palette in your terminal **git clone https://github.com/dmfed/t
 Printer has four modes: **bold**, **reversed**, **underline**, and **blinking**. Bold, underline and blinking are self explanatory. Reversed mode if switched on swaps font and background colors). These modes can be toggled on and off with **ToggleBold()**, **ToggleBlinking()**, **ToggleReversed()**, and **ToggleUnderline()** methods of Printer. For a complete list of Printer methods see **[https://pkg.go.dev/github.com/dmfed/termtools](https://pkg.go.dev/github.com/dmfed/termtools)**.
 
 ## NewPrinter
-Printer instance can be initialized with all options set to needed values at once. Use **termtools.NewPrinter()** to set upinstance of Printer as required.
+Printer instance can be initialized with all options set to needed values at once. Use **termtools.NewPrinter()** to set up instance of Printer as required.
 
 The functions sugnature is as follows: 
 
-**func NewPrinter(conf PrinterConfig) (p *Printer, err error)**
+**func NewPrinter(conf PrinterConfig) (p \*Printer, err error)**
 
 It accepts PrinterConfig as single argument.
 
