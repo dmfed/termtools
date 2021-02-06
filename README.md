@@ -128,11 +128,21 @@ var p termtools.Printer
 p.MoveTo(10,10)
 p.Print("This starts at column 10, row 10")
 ```
-See also example program below.
+**termtools** has the following functions to control cursor position (signatures are self-explanatory):
 
-## Using PrintSuite
+**func MoveCursorTo(column, row int), func MoveCursorHome(), func MoveCursorUp(rows int), func MoveCursorDown(rows int), MoveCursorLeft(columns int), MoveCursorRight(columns int), MoveCursorToRow(row int), func MoveCursorToNextRow()**
 
-**termtools.PrintSuite** can act as an (almost) full replacement to fmt module from starndard library. It is intended to hold one or more instances of **termtools.Printer** and switch them on the fly. This way you
+Most of this functionality is also implemented for **termtools.Printer** type with shorter and bit different names. **[See docs at pkg.go.dev](https://pkg.go.dev/github.com/dmfed/termtools)**
+
+## Clearing screen, deleting lines of text
+
+**termtools** has the following set of functions available to delete lines of text and clear screen:
+
+**ClearScreen(), ClearScreenUp(), ClearScreenDown(), ClearLine(), ClearLineLeft(), ClearLineRight()**
+
+## Using PrintSuite to style your program output
+
+**termtools.PrintSuite** can act as an (almost) full replacement to fmt module from standard library. It is intended to hold one or more configurations of **termtools.Printer** and switch them on the fly. This way you
 can get different output styles for different kinds of messages in your program. 
 
 ```go
@@ -141,7 +151,7 @@ type PrintSuite struct {
 	// Has unexported field.
 }
 ```
-**termtools.PrintSuite** embeds default printer, so you can call any printing method on it directly.
+**termtools.PrintSuite** embeds default Printer, so you can call any printing method on it directly.
 
 In example below we set up PrintSuite to be available globally in the program then configure two printers (red and green underlined). 
 
@@ -153,7 +163,7 @@ package main
 
 import "github.com/dmfed/termtools"
 
-var prnt = termtools.PrintSuite{} // we define prnt globally to reuse it from any part of program
+var prnt = termtools.PrintSuite{} // here we define prnt globally to reuse it from any part of program
 
 func setupPrinters() {
 	configs := []termtools.PrinterConfig{
