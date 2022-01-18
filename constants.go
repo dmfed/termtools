@@ -80,6 +80,9 @@ const (
 	ClearL      string = Esc + "[2K"
 	ClearLLeft         = Esc + "[1K"
 	ClearLRight        = Esc + "[0K"
+
+	// FormFeed
+	FormFeed string = "\x0c"
 )
 
 var (
